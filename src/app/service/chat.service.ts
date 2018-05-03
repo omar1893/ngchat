@@ -11,26 +11,44 @@ export class ChatService {
   public chatMessages: FirebaseListObservable<ChatMessage[]>;
   public chatMessage: ChatMessage;
   public userName: Observable<string>;
-  public user: any;
+  public user: firebase.User;
 
   constructor(private db: AngularFireDatabase, private afAuth: AngularFireAuth) {
     this.afAuth.authState.subscribe(auth => {
       if (auth !== undefined && auth !== null) {
         this.user = auth;
       }
+
+      this.getUser().subscribe(a => {
+        this.userName = a.displayName;
+      });
     });
+
    }
+
+  public getUser() {
+    const userId = this.user.uid;
+    const path = `/users/${userId}`;
+    return this.db.object(path);
+  }
+
+  public getUsers() {
+    const path = '/users';
+    return this.db.list(path);
+  }
 
   public sendMessage(msg: string) {
     const timestamp  = this.getTimeStamp();
-    const email = this.user.email;
+    // const email = this.user.email;
+    // const email = 'omarjlg1893@gmail.com';
     this.chatMessages = this.getMessages();
     this.chatMessages.push({
       message: msg,
       timeSent: timestamp,
       userName: this.userName,
-      email: email
+      email: this.user.email
     });
+    console.log('Send Message');
   }
 
   public getTimeStamp() {
@@ -42,6 +60,11 @@ export class ChatService {
   }
 
   public getMessages(): FirebaseListObservable<ChatMessage[]> {
-    return this.db.list('messages');
+    return this.db.list('messages', {
+      query: {
+        limitToLast: 25,
+        orderByKey: true
+      }
+    });
   }
 }

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../service/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup-form',
@@ -7,9 +9,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SignupFormComponent implements OnInit {
 
-  constructor() { }
+  email: string;
+  password: string;
+  displayName: string;
+  errorMsg: string;
+
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
+  }
+
+  public signUp() {
+    const email = this.email;
+    const password = this.password;
+    const displayName = this.displayName;
+    this.authService.signUp(email, password, displayName)
+    .then(resolve => this.router.navigate(['chat']))
+    .catch(error => this.errorMsg = error.message);
   }
 
 }
