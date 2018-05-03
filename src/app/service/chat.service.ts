@@ -42,12 +42,6 @@ export class ChatService {
   }
 
   public getMessages(): FirebaseListObservable<ChatMessage[]> {
-    return this.db.list('messages', {
-      query: {
-        limitToLast: 25,
-        orderByKey: true,
-        endAt: false
-      }
-    });
+    return this.db.list('messages');
   }
 }
